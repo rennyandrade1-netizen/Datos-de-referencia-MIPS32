@@ -1,0 +1,250 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{geometry}
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	urlcolor=blue,
+	citecolor=blue
+}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+
+% --- SOLUCIÓN ERROR U+202F ---
+% Convierte los espacios estrechos copiados de internet en espacios irrompibles estándar de LaTeX
+\DeclareUnicodeCharacter{202F}{~}
+\DeclareUnicodeCharacter{2011}{-} % Por si acaso se cuela un guión irrompible
+
+% --- CONFIGURACIÓN DE IMÁGENES ---
+\graphicspath{{./imagenes/}} 
+
+\newcommand{\insertarimagen}[4]{
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=#2\textwidth]{#1}
+		\caption{#3}
+		\label{#4}
+	\end{figure}
+}
+% ---------------------------------
+
+% --- SOLUCIÓN ADVERTENCIA HEADHEIGHT ---
+\setlength{\headheight}{14pt} 
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small PC para Renderizado 3D por <\$3000}
+\fancyhead[R]{\small Informe de Componentes}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+	
+	% --- PORTADA ---
+	\begin{titlepage}
+		\centering
+		\thispagestyle{fancy} % Mantiene el encabezado/pie de página solicitado
+		
+		% Genera un gran espacio en blanco arriba para empujar el título hacia abajo
+		\vspace*{9cm} 
+		
+		{\Huge\textbf{Informe de PC para Renderizado 3D\\ por menos de 3000 dólares}}
+		
+		% Separación controlada entre el título y los autores
+		\vspace{2cm} 
+		
+		{\large\textbf{Autores:}} \\[0.3cm]
+		{\large Eric Guacache -- C.I: 31.788.759} \\[0.2cm]
+		{\large Renny Andrade -- C.I: 29.727.828}
+		
+		\vfill % Empuja el resto del espacio hacia el final de la página
+	\end{titlepage}
+	
+	\clearpage
+	
+	% --- ÍNDICE MEJORADO Y CENTRADO ---
+	\begin{center}
+		\vspace*{1cm}
+		{\Huge\textbf{Índice}}
+		\vspace{2cm}
+		
+		\begin{tabular}{r p{1cm} l}
+			\large\textbf{Pág.} & & \large\textbf{Sección} \\
+			\midrule[1pt]
+			\textbf{3} & \dotfill & Introducción \\
+			\textbf{4} & \dotfill & Lista de Componentes y Precios \\
+			\textbf{5} & \dotfill & ¿Por qué hemos elegido estos componentes? \\
+			\textbf{7} & \dotfill & Rendimiento esperado en renderizado 3D \\
+			\textbf{8} & \dotfill & ¿Qué hacemos con lo que queda? y El Resultado \\
+			\textbf{9} & \dotfill & Conclusión \\
+		\end{tabular}
+	\end{center}
+	
+	\clearpage
+	
+	\section{Introducción}
+	Cuando se habla de renderizado 3D profesional, los ordenadores convencionales no son lo suficientemente aptos para esta tarea, y si nos vamos a ordenadores de gama baja, directamente son descartados. Ya sean trabajos con Blender, Maya, 3ds Max, Cinema 4D o cualquier software de renderizado 3D, la demanda de recursos es alta, siendo prácticamente obligatorio preparar un ordenador que sea apto para trabajar de manera óptima, fluida y sin cuelgues de los programas.
+	
+	Por eso, usando un presupuesto de \textbf{3000 dólares} como máximo, montaremos una máquina apropiada para el renderizado 3D. Hemos elegido componentes de alta calidad para que el trabajo sea lo más eficiente posible.
+	
+	A continuación, te contaremos qué componentes hemos escogido para este ensamble, el porqué los hemos elegido y qué rendimiento podemos esperar de cada uno de ellos.
+	
+	\clearpage
+	
+	\section{Lista de componentes y precios}
+	Aquí está una tabla con todos los componentes del ensamble, con sus especificaciones clave y sus precios en dólares tomados de Amazon en la fecha del 21 de mayo del 2026.
+	
+	% --- SOLUCIÓN TABLA OVERFULL HBOX ---
+	\begin{table}[H] 
+		\centering
+		% Usamos p{5.5cm} en la tercera columna para permitir saltos de línea automáticos
+		\begin{tabular}{@{}l|l| p{5.5cm} |l@{}}
+			\toprule
+			\textbf{Componente} & \textbf{Modelo} & \textbf{Especificaciones clave} & \textbf{Precio} \\
+			\midrule
+			CPU & \href{https://www.amazon.com.mx/AMD-RyzenTM-9950X-procesador-desbloqueado/dp/B0D6NNRBGP}{Ryzen 9 9950X} & 16 núcleos / 32 hilos, 5.7 GHz boost, AM5 & \$499.00 \\
+			\midrule
+			GPU & \href{https://www.amazon.es/Tarjeta-GIGABYTE-WINDFORCE-enfriamiento-GV-N5080WF3OC-16GD/dp/B0DS2R7N4F}{RTX 5080 WINDFORCE OC} & 16 GB GDDR7, 10752 CUDA, PCIe 5.0 & \$1,355.99 \\
+			\midrule
+			RAM & \href{https://www.amazon.com/-/es/CORSAIR-Vengeance-Memoria-computadora-compatible/dp/B0CJ8ZHMVF}{Corsair Vengeance DDR5} & 32 GB (2×16), 6000 MT/s, CL30, EXPO & \$377.59 \\
+			\midrule
+			Placa base & \href{https://www.amazon.es/MSI-MAG-TOMAHAWK/dp/B0DGB8Q19Y}{ASUS TUF Gaming X870-PLUS} & Chipset X870, AM5, PCIe 5.0, Wi‑Fi 7 & \$198.00 \\
+			\midrule
+			Disipador & \href{https://www.amazon.es/Noctua-NH-D15-chromax-Black-Enfriador-torres/dp/B07Y87YHRH}{Noctua NH-D15 chromax.black} & Doble torre, 6 heatpipes, 2 ventiladores 140 mm & \$124.95 \\
+			\midrule
+			Fuente & \href{https://www.amazon.com/-/es/MSI-alimentaci%C3%B3n-compacta-totalmente-garant%C3%ADa/dp/B0CT3XNCZ9}{MSI MAG A1000GL PCIE5} & 1000 W, 80+ Gold, ATX 3.1, modular & \$134.99 \\
+			\midrule
+			Almacenamiento & \href{https://www.amazon.com/-/es/Crucial-computadoras-port%C3%A1tiles-escritorio-recuperaci%C3%B3n/dp/B0DC8VPSHV}{Crucial P310 NVMe M.2} & 1 TB, PCIe Gen4, lectura 7.100 MB/s & \$188.99 \\
+			\midrule
+			Thermal pad &\href{https://www.amazon.com/-/es/Crucial-computadoras-port%C3%A1tiles-escritorio-recuperaci%C3%B3n/dp/B0DC8VPSHV/ref=sr_1_8}{Thermal Grizzly Kryonaut}  & 33x33x0,2mm & \$24.99 \\
+			\midrule
+			Chasis & \href{https://www.amazon.com/-/es/computadora-estante-disipaci%C3%B3n-ampliamente-extendido/dp/B0DDXBRJZ3}{Estante abierto (open frame)} & Estructura ATX, montaje vertical & \$21.99 \\
+			\midrule
+			Ventilación & \href{https://www.amazon.com/-/es/Noctua-NF-P12-PWM-Enfriamiento-1700/dp/B07CG2PGY6/ref=sr_1_16}{Noctua NF-P12 redux-1700}&4 ventiladores 120 mm &\$65.84 \\
+			\midrule
+			\multicolumn{3}{r}{\textbf{Total estimado}} & \textbf{\$2.992.29} \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+
+	\clearpage
+	
+	\section{¿Por qué hemos elegido estos componentes?}
+	
+	La eleccion de estos componentes nos permitira lograr el objetivo de tener un computador lo suficientemente pontente como para manejar renderizado 3D sin problemas. A continuación, una breve explicación sobre cada componente del armado especializado en render 3D con sus respectivas imágenes de referencia.
+	
+	\subsection{CPU: AMD Ryzen 9 9950X}
+	Este procesador es el más adecuado para el renderizado por CPU, el cual es más indicado si quieres precisión y reducir el ruido de los renders 3D. Con 16 núcleos y 32 hilos, maneja simulaciones y cálculos de iluminación sin ningún tipo de problema. Gracias a su frecuencia turbo de hasta 5.7 GHz, también es capaz de acelerar el modelado y la animación, que dependen más de la frecuencia del procesador. 
+	\textit{Por cierto}, aunque su TDP de 170 W es bastante alto, la refrigeración que hemos elegido lo mantendrá fresquito incluso en sesiones de renderizado de larga duración.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_214339.png}
+	\end{figure}
+	
+	\subsection{GPU: Gigabyte RTX 5080 WINDFORCE OC}
+	La renderización por GPU es una excelente opción para mejorar la velocidad del renderizado sin perder casi nada de calidad, y la RTX 5080 de Nvidia es la mejor opción costo-beneficio de la serie 50. Viene con 10.752 núcleos CUDA y 16 GB de VRAM GDDR7, ofreciendo una optimización excelente en la mayoría de los programas de renderizado 3D. Esto permite cargar escenas enormes sin que el programa se queje de falta de memoria. Además, el sistema de refrigeración WindForce de Gigabyte es silencioso y eficaz, perfecto para evitar que la tarjeta se caliente y baje de frecuencia por la temperatura.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_213436.png}
+	\end{figure}
+	
+	\subsection{RAM: Corsair Vengeance DDR5 32 GB}
+	Los 32 GB son el mínimo recomendable para trabajar con comodidad: permite tener abiertas varias aplicaciones simultáneamente, cargar texturas de alta calidad en la memoria RAM and minimizar la posibilidad de cierres o cuelgues inesperados. Además, cuenta con velocidades de 6000 MT/s para evitar retrasos y latencia, y un disipador de perfil bajo para evitar que choque con el disipador Noctua.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_213535.png}
+	\end{figure}
+	
+	\subsection{ASUS TUF Gaming X870-PLUS}
+	La tarjeta madre ASUS TUF Gaming X870-PLUS cuenta con soporte PCIe 5.0, tanto para GPUs modernas como la RTX 5080, como para SSDs de última generación con altas velocidades de escritura y lectura, lo que asegura que el sistema no se quede obsoleto en un par de años. Sus VRM aguantan las CPUs de alto consumo sin ningún problema, y cuenta con Wi‑Fi 7 y LAN de 5 GbE, ideal para trabajar con archivos en red sin depender de cables.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_213626.png}
+	\end{figure}
+	
+	\subsection{Disipador}
+	El \textbf{Noctua NH-D15 chromax.black} es un excelente disipador, enfriando al nivel de una refrigeración líquida sin los riesgos de esta, y con un ruido mínimo. Sus dos ventiladores de 140 mm y sus seis tubos de cobre absorben el calor del procesador con extrema facilidad.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_213737.png}
+	\end{figure}
+	
+	\subsection{Thermal pad}
+	La \textbf{Thermal Grizzly Kryonaut} es una alternativa a la pasta térmica. Consiste en una lámina de grafeno que transfiere el calor del procesador al disipador. A diferencia de las pastas térmicas tradicionales (donde estas se secan y habría que cambiarlas cada 6 meses), esta puede durar años sin perder eficiencia.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_214145.png}
+	\end{figure}
+	
+	\subsection{Fuente de alimentación: MSI MAG A1000GL}
+	Los 1000 vatios de la fuente dan margen de sobra para los picos de consumo que pueden generar la CPU y la GPU juntas. Al tener certificación 80+ Gold y ser totalmente modular, mantiene la eficiencia energética alta permitiendo un montaje muy limpio. Además, ya incluye el conector 12V-2x6 nativo para la RTX 5080, así que te olvidas de usar adaptadores extraños.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_213657.png}
+	\end{figure}
+	
+	\subsection{Almacenamiento: Crucial P310 1 TB}
+	Un SSD Gen4 con 7.100 MB/s de lectura hace que el sistema operativo, los programas y los proyectos carguen en cuestión de segundos. Ofrece 1 TB de espacio para los softwares de renderizado 3D y los proyectos que se vayan a realizar.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_213816.png}
+	\end{figure}
+	
+	\subsection{Open case}
+	Hemos optado por un open case para mejorar el flujo de aire, facilitar el armado y hacer más sencillo el mantenimiento a futuro.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_214222.png}
+	\end{figure}
+	
+	\subsection{Ventiladores extra}
+	Aunque el chasis sea abierto, aún hay que mantener un buen flujo de aire para que este no se quede estancado; por eso elegimos 4 ventiladores Noctua para este trabajo.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{./IMG_20260521_214303.png}
+	\end{figure}
+	
+	\section{Rendimiento esperado en renderizado 3D}
+	
+	\begin{itemize}[leftmargin=*,itemsep=3pt]
+		\item \textbf{Blender (Cycles en CPU):} Con los 16 núcleos del Ryzen 9, se podrán renderizar escenas complejas en cuestión de minutos. En tests similares, esta CPU compite de tú a tú con estaciones de trabajo que cuestan el doble.
+		\item \textbf{Blender (Cycles con OptiX / GPU):} La RTX 5080 permitirá previsualizar y renderizar imágenes fotorrealistas casi al instante. Escenas complejas que antes requerían horas se completarán en minutos.
+		\item \textbf{Otros motores (V-Ray, Arnold, Redshift, Octane):} La combinación de núcleos CUDA y 16 GB de VRAM gestiona sin esfuerzo geometría pesada, texturas 4K y múltiples luces. No tendremos que reducir calidad para evitar que la tarjeta colapse, lo que permite previsualizar el trabajo en la mejor calidad posible.
+		\item \textbf{Simulaciones de fluidos, humo o telas:} El gran ancho de banda de la RAM y el poder multinúcleo de la CPU permiten calcular simulaciones mientras trabajas en otros elementos, sin que el sistema se vuelva lento o los programas se cuelguen.
+	\end{itemize}
+	
+	Además, al usar un almacenamiento tan rápido, los tiempos de carga de archivos, texturas y cachés se reducen drásticamente. Esto agiliza todo el flujo de trabajo, no solo el render final.
+	
+	\section{¿Qué hacemos con lo que queda?}
+	Comprar stickers y luces RGB para más FPS.
+
+	\section{El Resultado}
+	Con todo lo explicado, es un hecho que contar con una computadora con los componentes elegidos usando el presupuesto inicial, nos permite tener nuestro formidable "Taller" de renderizado 3D, con una computadora asi el nivel de trabajo sera bastante fluido y eficiente, muy comodo y mas aun practico, con seguridad muchos de los trabajos realizados ahi se sostendran bastante bien.
+
+	\clearpage
+	
+	\section*{Conclusión}
+	Montar un PC para renderizado 3D por menos de \$3.000 es totalmente factible, y este conjunto es una apuesta segura. Hemos puesto el foco en la fiabilidad, el rendimiento sostenido y la ausencia de cuellos de botella. Con esta máquina podrás afrontar proyectos profesionales sin miedo a que el hardware se convierta en un obstáculo.
+	
+	¿El resultado? Un computador lo suficientemente eficiente para el renderizado, es silenciosa y abierta a futuras ampliaciones.
+	
+\end{document}
