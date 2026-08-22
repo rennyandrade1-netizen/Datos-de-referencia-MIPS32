@@ -1,0 +1,160 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+% Configuración de hipervínculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue
+}
+
+% Estilo de encabezados y pies de página (idéntico al modelo)
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Implementación y Análisis en MIPS32}
+\rhead{\small Informe 1}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Formato de secciones
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\bfseries}{\thesubsection.}{0.5em}{}
+
+\begin{document}
+
+% ----------------------------------------------------
+% PORTADA (Estructura idéntica al modelo adjunto)
+% ----------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{4cm}
+    
+    {\Huge \bfseries Informe 1 \par}
+    \vspace{2cm}
+    
+    {\Large \bfseries Autores: \par}
+    \vspace{0.5cm}
+    {\large
+    \begin{tabular}{cl}
+        Eric Guacache & C.I: 31.788.759 \\
+        Renny Andrade & C.I: 29.727.828 \\
+    \end{tabular}
+    \par}
+    
+    \vfill
+    {\large \thepage}
+\end{titlepage}
+
+\newpage
+\pagestyle{fancy}
+\setcounter{page}{2}
+
+% ----------------------------------------------------
+% ÍNDICE
+% ----------------------------------------------------
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------
+% CONTENIDO DEL INFORME
+% ----------------------------------------------------
+
+\section{Implementación de la Recursividad y Uso de la Pila en MIPS32}
+
+Para implementar subrutinas recursivas en la arquitectura MIPS32, es fundamental la utilización coordinada de los registros argumentales (\texttt{\$a0--\$a3}), el puntero de pila (\texttt{\$sp}) y el registro de dirección de retorno (\texttt{\$ra}), junto con las instrucciones de salto con enlace (\texttt{jal}) y salto a registro (\texttt{jr}).
+
+\subsection{Mapeo de Registros y Control de Flujo}
+\begin{itemize}
+    \item \textbf{Registros de Argumentos (\texttt{\$a0--\$a3}):} Almacenan los parámetros de entrada requeridos por la función antes de realizar la invocación.
+    \item \textbf{Instrucción \texttt{jal} (Jump and Link):} Realiza una bifurcación hacia la etiqueta asignada a la subrutina y, simultáneamente, guarda la dirección de la siguiente instrucción en el registro \texttt{\$ra}.
+    \item \textbf{Stack Pointer (\texttt{\$sp}):} Es un registro especial que apunta al tope actual de la memoria pila en RAM. Dado que la pila crece hacia direcciones de memoria menores, la reserva de espacio requiere restar bytes a \texttt{\$sp} en múltiplos de 4 (por ejemplo, \texttt{addi \$sp, \$sp, -8} para reservar espacio para 2 palabras de 32 bits).
+\end{itemize}
+
+\subsection{Preservación del Estado en Funciones Recursivas}
+Debido a que cada llamada recursiva sobrescribe los valores almacenados en \texttt{\$ra} y en los registros de argumentos \texttt{\$a\#}, es indispensable salvar dichos valores en el \textit{stack frame} (marco de pila) antes de ejecutar un nuevo llamado recursivo. 
+
+Toda función recursiva debe definir de manera explícita un \textbf{caso base} mediante instrucciones condicionales (\texttt{beq}, \texttt{bne}) para detener el apilamiento y comenzar el retorno.
+
+\subsection{Mecanismo de Desapilado y Retorno}
+Para retornar al flujo de ejecución anterior:
+\begin{enumerate}
+    \item Se restauran de la memoria pila los datos previamente respaldados utilizando la instrucción \texttt{lw} (Load Word), recuperando la dirección de retorno original en \texttt{\$ra} y los argumentos en \texttt{\$a\#}.
+    \item Se libera el espacio del marco de pila sumando la cantidad equivalente de bytes al registro \texttt{\$sp} (\texttt{addi \$sp, \$sp, 8}).
+    \item Se ejecuta la instrucción \texttt{jr \$ra} (Jump Register) para bifurcar de regreso a la dirección guardada en \texttt{\$ra}.
+\end{enumerate}
+
+\section{Riesgos de Desbordamiento y Estrategias de Mitigación}
+
+\subsection{Desbordamiento de Pila (Stack Overflow)}
+Existe un límite finito de memoria RAM asignado a la pila del proceso. En cada llamada recursiva se asigna espacio adicional para guardar los registros locales. Si la recursión se extiende demasiado de manera descontrolada y \texttt{\$sp} intenta acceder a regiones de memoria fuera del límite de la pila, el sistema operativo abortará la ejecución por una violación de segmento (\textit{segmentation fault}).
+
+\paragraph{Mitigación:}
+\begin{itemize}
+    \item \textbf{Validación de entrada:} Sanitizar y restringir los valores de entrada para garantizar que el número de iteraciones no exceda la capacidad física de la pila.
+    \item \textbf{Definición rigurosa del caso base:} Garantizar que la condición de parada del algoritmo recursivo sea inalcanzable de manera infinita.
+\end{itemize}
+
+\subsection{Desbordamiento Aritmético (Arithmetic Overflow)}
+Los registros generales de MIPS32 tienen un tamaño fijo de 32 bits, lo que permite almacenar enteros con signo dentro del rango $[-2.147.483.648, \; 2.147.483.647]$. Si una función recursiva genera valores que crecen de forma exponencial por iteración y supera dicho rango, la ALU de MIPS genera una excepción por desbordamiento aritmético.
+
+\paragraph{Mitigación:}
+Utilizar instrucciones aritméticas sin detección de desbordamiento, tales como \texttt{addu}, \texttt{addiu} o \texttt{subu}. Estas instrucciones ignoran la excepción de hardware y permiten continuar la ejecución, aunque es responsabilidad del programador gestionar el manejo de sobreflujo de datos.
+
+\section{Comparación entre Implementación Iterativa y Recursiva}
+
+\begin{itemize}
+    \item \textbf{Implementación Iterativa:} Opera principalmente utilizando los registros internos del procesador (registros temporales \texttt{\$t0--\$t9}). No requiere interacción continua con la memoria principal (RAM) para el control de bucles, manteniendo un consumo espacial de $\mathcal{O}(1)$.
+    \item \textbf{Implementación Recursiva:} Depende fuertemente del acceso a la memoria RAM a través del puntero de pila \texttt{\$sp} para conservar el estado de la función (\texttt{\$ra} y \texttt{\$a\#}). Adicionalmente, añade una carga computacional considerable por el uso repetido de las instrucciones \texttt{jal} y \texttt{jr}.
+\end{itemize}
+
+\section{Comparación entre Ejemplos Académicos y Programas Operativos Complejos}
+
+Los ejemplos presentados en la literatura académica suelen centrarse en algoritmos aislados de baja escala orientados a ilustrar sintaxis y conceptos básicos. En contraste, una aplicación operativa real en MIPS32 exige estructurar problemas complejos mediante la descomposición modular en múltiples subrutinas interconectadas, integrando manejo de memoria, operaciones de entrada/salida mediante \texttt{syscall} y cadenas de llamadas a subfunciones.
+
+\section{Justificación del Enfoque: Determinación de Paridad en MIPS32}
+
+Para determinar la paridad de un entero positivo $n$, la implementación iterativa resulta sustancialmente superior a la solución recursiva bajo tres criterios fundamentales:
+
+\subsection{Eficiencia de Memoria}
+\begin{itemize}
+    \item \textbf{Iterativo ($\mathcal{O}(1)$):} Opera exclusivamente dentro de los registros del procesador (\texttt{\$t0, \$t1, \$t2}), con cero accesos a la memoria RAM.
+    \item \textbf{Recursivo ($\mathcal{O}(n)$):} Requiere la asignación de $n$ marcos de pila en la RAM, incrementando linealmente el uso de memoria y presentando riesgo de desbordamiento de pila para valores elevados de $n$.
+\end{itemize}
+
+\subsection{Tiempo de Ejecución}
+Aunque ambos enfoques exhiben una complejidad temporal teórica de $\mathcal{O}(n)$, la solución iterativa ejecuta únicamente instrucciones simples de un solo ciclo (\texttt{add}, \texttt{subi}, \texttt{neg}, \texttt{beq}). Por su parte, la solución recursiva incurre en una alta penalización de ciclos por el consumo de transferencias en RAM (\texttt{sw}, \texttt{lw}), modificaciones de \texttt{\$sp} y saltos de subrutina (\texttt{jal}, \texttt{jr}).
+
+\subsection{Claridad y Mantenibilidad del Código}
+El enfoque iterativo genera un flujo de control lineal, directo y fácil de depurar, a diferencia del enfoque recursivo cuyo rastreo de estado requiere seguir la evolución de la memoria pila.
+
+\section{Análisis y Discusión de Resultados}
+
+\subsection{Evaluación de la Función Recursiva}
+\begin{itemize}
+    \item \textbf{Gestión de la Pila (\texttt{\$sp}):} En cada llamada se reservan 8 bytes mediante \texttt{addi \$sp, \$sp, -8} para almacenar la dirección de retorno (\texttt{sw \$ra, 4(\$sp)}) y el valor decrementado del parámetro (\texttt{sw \$a0, 0(\$sp)}), produciendo una ocupación lineal $\mathcal{O}(n)$.
+    \item \textbf{Instrucciones y Registros:} Utiliza los registros \texttt{\$sp}, \texttt{\$ra}, \texttt{\$a0}, \texttt{\$v0} (retorno de resultado), \texttt{\$zero} y \texttt{\$t0}. Aplica las instrucciones \texttt{sw}, \texttt{lw}, \texttt{addi}, \texttt{subi}, \texttt{move}, \texttt{li}, \texttt{beq}, \texttt{jal} y \texttt{jr}.
+    \item \textbf{Resultados:} Aplica correctamente la relación de recurrencia $\text{paridad}(n) = 1 - \text{paridad}(n-1)$ a partir del caso base $\text{paridad}(0) = 0$, retornando $0$ para enteros pares y $1$ para impares.
+\end{itemize}
+
+\subsection{Evaluación de la Función Iterativa}
+\begin{itemize}
+    \item \textbf{Gestión de la Pila (\texttt{\$sp}):} No requiere el uso de la memoria pila, logrando una complejidad de almacenamiento constante $\mathcal{O}(1)$.
+    \item \textbf{Instrucciones y Registros:} Emplea únicamente registros temporales: \texttt{\$t0} como contador, \texttt{\$t1} como acumulador y \texttt{\$t2} como alternador de signo. Hace uso de \texttt{add}, \texttt{neg}, \texttt{subi}, \texttt{beq} y \texttt{j}.
+    \item \textbf{Resultados:} Determina la paridad mediante la alternancia iterativa de signos sin sobrecargar los recursos de memoria.
+\end{itemize}
+
+\subsection{Conclusiones Comparativas}
+\begin{itemize}
+    \item \textbf{Eficiencia Temporal:} La función iterativa ejecuta la tarea significativamente más rápido al omitir la latencia de acceso a memoria RAM y la sobrecarga de saltos de subrutina.
+    \item \textbf{Seguridad de Memoria:} La solución iterativa es óptima y segura frente a valores de gran magnitud, eliminando por completo la posibilidad de fallos por desbordamiento de pila.
+\end{itemize}
+
+\end{document}
