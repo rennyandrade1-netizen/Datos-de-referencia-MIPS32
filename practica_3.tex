@@ -1,0 +1,176 @@
+\documentclass[12pt,a4paper]{article}
+% --- PAQUETES DE FORMATO ---
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+
+% --- CONFIGURACIÓN DE MÁRGENES ---
+\geometry{
+	a4paper,
+	top=2.5cm,
+	bottom=2.5cm,
+	left=3cm,
+	right=2.5cm
+}
+
+% --- CONFIGURACIÓN DE HYPERREF ---
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	filecolor=black,
+	urlcolor=black,
+	pdftitle={Práctica de Laboratorio 3},
+}
+
+\begin{document}
+	
+	% ==========================================
+	% PORTADA
+	% ==========================================
+	\begin{titlepage}
+		\centering
+		\vspace*{6cm}
+		{\Huge \bfseries Práctica de Laboratorio 3} \\[3cm]
+		{\Large \bfseries Autores:} \\[0.5cm]
+		\begin{tabular}{ll}
+			Eric Guacache & C.I: 31.788.759 \\
+			Renny Andrade & C.I: 29.727.828 \\
+		\end{tabular}
+		\vfill
+	\end{titlepage}
+	
+	\newpage
+	% ==========================================
+	% ÍNDICE
+	% ==========================================
+	\tableofcontents
+	\newpage
+	
+	% ==========================================
+	% DESARROLLO DE LAS PREGUNTAS
+	% ==========================================
+	
+	\section{Pregunta 1}
+	\textit{Explique cómo se organiza la memoria cuando un sistema utiliza memory-mapped I/O. ¿En qué región de memoria se suelen mapear los dispositivos? ¿Qué implicaciones tiene para las instrucciones lw y sw?}
+	
+	\subsection{Organización de la memoria en MM I/O}
+	\begin{itemize}
+		\item \textbf{Espacio de Direcciones Unificado:} A diferencia de otros esquemas, hay un único espacio de direcciones que es compartido por la RAM, la ROM y los registros de los dispositivos I/O.
+		\item \textbf{Registros como Ubicaciones de Memoria:} A cada registro de control o de datos de un dispositivo periférico se le asigna una dirección física única dentro del espacio de memoria.
+		\item \textbf{Sin Instrucciones Especiales:} El procesador no necesita comandos específicos para Entrada/Salida. Las operaciones se realizan utilizando las mismas instrucciones de carga (\texttt{lw}) y almacenamiento (\texttt{sw}) empleadas para acceder a la RAM.
+		\item \textbf{Decodificador Unificado:} Un hardware decodificador de direcciones se encarga de determinar si una dirección enviada por el procesador apunta a la RAM o a un dispositivo periférico.
+	\end{itemize}
+	
+	\subsection{Región de memoria donde se suelen mapear}
+	Generalmente, los dispositivos I/O se mapean en regiones que se encuentran \textbf{por encima de la memoria RAM principal}, en la parte alta del espacio de direcciones físicas. Esto evita que sus direcciones se solapen con las de la memoria de sistema y aprovecha los amplios rangos de direccionamiento de las arquitecturas modernas.
+	
+	\subsection{Implicaciones para las instrucciones lw y sw}
+	\begin{itemize}
+		\item \textbf{Uniformidad en el Acceso:} Permite que el software interactúe con los periféricos usando exactamente el mismo método y sintaxis que emplea para la memoria común.
+		\item \textbf{Semántica de I/O:} Una lectura mediante \texttt{lw} se traduce en extraer el estado o dato actual del registro periférico. Una escritura mediante \texttt{sw} se utiliza para modificar su comportamiento (por ejemplo, encender un actuador o enviar un bloque de datos).
+		\item \textbf{Gestión de Caché:} Exige que los segmentos de memoria mapeados a I/O se marquen estrictamente como \textbf{no-cacheables}, para evitar que el procesador recupere un dato antiguo desde la caché de la CPU en lugar de consultar el estado real y volátil del dispositivo.
+	\end{itemize}
+	
+	\section{Pregunta 2}
+	\textit{¿Cuál es la principal diferencia entre memory-mapped I/O y la entrada/salida por puertos? ¿Qué ventajas y desventajas tiene cada enfoque? ¿Por qué MIPS32 utiliza principalmente memory-mapped I/O?}
+	
+	\subsection{Principal Diferencia}
+	En \textbf{Memory-Mapped I/O (MMIO)}, los periféricos se integran en el mismo mapa de direcciones que la memoria principal y se controlan mediante operaciones ordinarias de carga y almacenamiento. En \textbf{Port-Mapped I/O (PMIO)}, los periféricos operan en un espacio de direcciones físicamente aislado e independiente, requiriendo instrucciones de procesador exclusivas (como \texttt{IN} y \texttt{OUT}).
+	
+	\subsection{Ventajas y Desventajas de cada enfoque}
+	\begin{itemize}
+		\item \textbf{Memory-Mapped I/O (MMIO):}
+		\begin{itemize}
+			\item \textit{Ventajas:} Simplifica el diseño de la CPU al no requerir un conjunto extra de instrucciones. Permite acceder a los periféricos empleando la flexibilidad completa del conjunto de instrucciones de memoria. Facilita transferencias DMA eficientes.
+			\item \textit{Desventajas:} Resta espacio útil al mapa de memoria física global y obliga a una administración cuidadosa para evitar que la memoria caché guarde datos de I/O por error.
+		\end{itemize}
+		\item \textbf{Entrada/Salida por Puertos (PMIO):}
+		\begin{itemize}
+			\item \textit{Ventajas:} Protege el 100\% del direccionamiento de la memoria principal exclusivamente para la RAM. Garantiza una clara barrera de seguridad de acceso a nivel de arquitectura.
+			\item \textit{Desventajas:} Obliga al procesador a incorporar instrucciones exclusivas que aumentan la complejidad del silicio. Menor flexibilidad programática, ya que estas instrucciones especiales suelen admitir menos formatos y registros.
+		\end{itemize}
+	\end{itemize}
+	
+	\subsection{Por qué MIPS32 utiliza principalmente MMIO}
+	La arquitectura MIPS32 es inherentemente \textbf{RISC (Reduced Instruction Set Computer)}. Su objetivo rector es la simplicidad extrema del hardware para lograr ciclos de reloj rápidos. Al adoptar MMIO, MIPS elimina todo el conjunto de instrucciones dedicado a puertos de I/O, estandarizando toda interacción bajo \texttt{lw} y \texttt{sw}. Esta uniformidad facilita el desarrollo de compiladores y optimiza la tubería (\textit{pipeline}) del procesador.
+	
+	\section{Pregunta 3}
+	\textit{En un sistema con memory-mapped I/O: ¿Qué problemas pueden surgir si dos dispositivos usan direcciones solapadas? ¿Cómo se evita este conflicto?}
+	
+	\subsection{Problemas por direcciones solapadas}
+	\begin{itemize}
+		\item \textbf{Corrupción generalizada de datos:} Al emitir una dirección solapada, tanto el dispositivo A como el dispositivo B intentarán responder. El procesador recibirá bits mezclados o sobreescritos.
+		\item \textbf{Comportamiento Erróneo o Inestable:} Escribir en la dirección disparará rutinas en el dispositivo incorrecto. Esto se manifiesta en fallos de hardware intermitentes, reinicios repentinos (\textit{kernel panics}) y bloqueos irreversibles (\textit{hangs}).
+		\item \textbf{Vulnerabilidades:} Representa una brecha grave de seguridad, ya que el control sobre un dispositivo inofensivo podría desencadenar modificaciones en el registro de un componente del sistema de alta criticidad.
+	\end{itemize}
+	
+	\subsection{Cómo se evita el conflicto}
+	El diseño informático combate este solapamiento mediante un esfuerzo conjunto de tres capas:
+	\begin{itemize}
+		\item \textbf{Hardware:} Uso de \textit{decodificadores de direcciones} estructurados de fábrica para emitir la señal de \textit{Chip Select} a un solo componente lógico por rango.
+		\item \textbf{Firmware (BIOS/UEFI):} Durante el encendido del equipo, audita los dispositivos conectados al bus (como PCIe) y les asigna rangos de direcciones Base (BARs) que están matemáticamente garantizados de no cruzarse.
+		\item \textbf{Sistema Operativo:} Mantiene un mapa unificado estricto de los recursos y evita que los controladores reclamen memoria o puertos que ya figuran ocupados por otro periférico.
+	\end{itemize}
+	
+	\section{Pregunta 4}
+	\textit{¿Por qué se considera que el memory-mapped I/O simplifica el diseño del conjunto de instrucciones de un procesador? ¿Qué tipo de instrucciones adicionales serían necesarias si se usara E/S por puertos?}
+	
+	\subsection{Simplificación del diseño del procesador}
+	En el modelo MMIO el hardware no diferencia lógicamente entre interactuar con la RAM o con un periférico. Debido a esto, la CPU puede reutilizar el 100\% de la circuitería destinada a sus instrucciones convencionales de almacenamiento y lectura de memoria, omitiendo integrar decodificadores internos, microcódigo y validaciones para comandos dedicados puramente a periféricos.
+	
+	\subsection{Instrucciones adicionales para E/S por puertos}
+	Si el sistema migrara a un esquema de puertos, el procesador estaría forzado a soportar comandos adicionales estructurados (por ejemplo \texttt{IN} y \texttt{OUT}), los cuales deberían abarcar:
+	\begin{itemize}
+		\item \textbf{Opcodes Específicos:} Códigos de operación legibles por el procesador que identifiquen inequívocamente que la orden va dirigida al bus de Entrada/Salida.
+		\item \textbf{Direccionamiento Paralelo:} Capacidad para declarar qué número de "puerto" físico se desea intervenir.
+		\item \textbf{Manejo de Tamaño de Envío:} Variantes del comando para transferir información a nivel de byte, media palabra o palabra completa hacia dicho puerto.
+	\end{itemize}
+	
+	\section{Pregunta 5}
+	\textit{¿Qué ocurre a nivel del bus de datos y direcciones cuando el procesador accede a una dirección de memoria que corresponde a un dispositivo? ¿Cómo sabe el hardware que debe acceder a un periférico en lugar de la RAM?}
+	
+	\subsection{A nivel del bus de datos y direcciones}
+	El procesador inicia la transacción de manera genérica: coloca en el \textbf{bus de direcciones} el valor físico del registro deseado. En el bus de control, activa el pin correspondiente a la acción requerida (\textit{Read} o \textit{Write}). Si se trata de una escritura, expulsa el dato procesado al \textbf{bus de datos}; si es una lectura, retiene su ciclo a la espera de que el dispositivo externo inyecte la respuesta en el bus de datos.
+	
+	\subsection{Cómo sabe el hardware que debe acceder a un periférico}
+	El procesador en sí mismo \textbf{lo ignora}. La magia del enrutamiento recae totalmente en un circuito externo integrado en la placa base conocido como \textbf{decodificador de direcciones}. Este decodificador posee el mapa topológico del sistema. Cuando detecta que la numeración eléctrica viajando en el bus de direcciones coincide con el rango reservado para un dispositivo externo, envía una señal de activación exclusiva (\textit{Chip Select}) hacia el controlador de dicho periférico, al tiempo que mantiene a la memoria RAM primaria en estado inactivo.
+	
+	\section{Pregunta 6}
+	\textit{¿Es posible que un programa normal (sin privilegios) acceda a un dispositivo mapeado en memoria? ¿Qué mecanismos de protección existen para evitar accesos no autorizados?}
+	
+	\subsection{Acceso por parte de programas sin privilegios}
+	Aunque la dirección es una dirección de memoria estándar, en sistemas operativos modernos \textbf{no es posible} que el software de usuario final apunte directamente al hardware de I/O. Intentar hacerlo provocará una detención de seguridad abrupta del programa.
+	
+	\subsection{Mecanismos de protección implementados}
+	\begin{itemize}
+		\item \textbf{Modos de Privilegio de la CPU:} El procesador clasifica las ejecuciones en "modo kernel" (total acceso) y "modo usuario" (acceso perimetral).
+		\item \textbf{Unidad de Gestión de Memoria (MMU):} Este subsistema mapea la memoria virtual a la física. El sistema operativo instruye a la MMU para que marque las páginas de MMIO con permisos restringidos únicamente para el anillo del Kernel. Si un software de usuario exige la ruta, la MMU arroja un fallo (\textit{Segmentation Fault}).
+		\item \textbf{System Calls (Llamadas al Sistema):} Constituyen el puente legal. El programa de usuario pide de favor al Sistema Operativo que manipule el hardware. La ejecución cruza momentáneamente al modo Kernel, ejecuta el controlador seguro y retorna los resultados al espacio de usuario.
+	\end{itemize}
+	
+	\section{Pregunta 7}
+	\textit{¿Qué técnicas se pueden emplear para evitar esperas activas innecesarias al interactuar con dispositivos?}
+	
+	\subsection{Interrupciones por Hardware (Interrupts)}
+	El procesador dicta la orden de inicio al dispositivo y se desentiende. Puede continuar procesando código de otras aplicaciones. En el momento exacto en que el dispositivo completa la tarea, emite un pulso eléctrico que interrumpe a la CPU forzándola a guardar su estado actual y ejecutar la Rutina de Servicio (ISR) que recuperará el dato de I/O, para luego reanudar donde se había quedado.
+	
+	\subsection{Acceso Directo a Memoria (DMA)}
+	Para cargas masivas de datos (como un disco SSD o puerto Ethernet), el procesador configura un chip secundario especializado llamado Controlador DMA. Este controlador asume el monopolio del bus y transfiere toneladas de bytes desde el dispositivo periférico hasta la memoria RAM sin intermediar en la CPU. Únicamente molestará al procesador principal con una interrupción al finalizar el 100\% del bloque.
+	
+	\section{Análisis y Discusión de los Resultados}
+	
+	\subsection{Implicaciones del Modelo Arquitectónico}
+	El enfoque Memory-Mapped I/O unifica el mapeo general fusionando dispositivos y memoria principal. Esta estrategia limpia profundamente el árbol de instrucciones del procesador (acorde a las filosofías RISC y MIPS32) y acelera su ciclo de decodificación. Como compensación de este beneficio, traspasa al programador y al sistema operativo la enorme responsabilidad de demarcar minuciosamente la gestión de la caché y de establecer barreras de acceso estricto, para no provocar desfases temporales en la lectura del hardware.
+	
+	\subsection{Estabilidad y Protección Estructural}
+	El solapamiento de direcciones representa el talón de Aquiles de un sistema MMIO, capaz de desestabilizar críticamente el bus entero. Su contención eficaz exige una barrera multicapa inquebrantable: decodificadores pasivos en la placa base para separar el silicio; la etapa de calibración del firmware UEFI; y, la robusta fiscalización de la Unidad de Gestión de Memoria (MMU), la cual asume la tarea de revocar el acceso físico a programas no privilegiados mediante el bloqueo de permisos por página.
+	
+	\subsection{Maximización del Rendimiento}
+	Finalmente, se establece que dotar a un sistema informático de acceso uniforme a I/O no garantiza rendimiento por sí solo, si la CPU se estanca en rutinas de espera activa. La obligatoriedad del uso de Interrupciones de Hardware y Controladores DMA representa el estándar definitivo para la escalabilidad, pues permite que el núcleo del procesador actúe como un gestor macro en lugar de un operario, delegando los traslados mecánicos del bus y logrando el verdadero paralelismo de Entrada y Salida que exigen los entornos modernos.
+	
+\end{document}
