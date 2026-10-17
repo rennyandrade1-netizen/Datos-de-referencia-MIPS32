@@ -1,0 +1,25 @@
+# ============================================================
+#  MAKEFILE - Simulador de Sistemas de Archivos FAT/Ext2
+# ============================================================
+
+# Compilador y banderas
+CXX      := g++
+CXXFLAGS := -std=c++11 -Wall -Wextra
+#   -std=c++11 : el ejercicio pide C++11 o superior
+#   -Wall -Wextra : avisan de conversiones raras y comparas signed/unsigned
+#                   (tu codigo tiene varias de esas, te las va a senalar)
+
+# Nombre del ejecutable
+TARGET := simulador
+
+# Fuentes y cabeceras: detecta solos lo que haya en la carpeta
+SRCS    := $(wildcard *.cpp)
+HEADERS := $(wildcard *.h)
+OBJS    := $(SRCS:.cpp=.o)
+
+# Regla por defecto: construir el ejecutable
+all: $(TARGET)
+
+# Enlazar todos los .o en el ejecutable
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
